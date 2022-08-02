@@ -14,8 +14,7 @@ def recursive_walk_directory(target_dir):
     '''
     files = []
     for d, s, file_list in os.walk(target_dir):
-        for f in file_list:
-            files.append(os.path.join(d,f))
+        files.extend(os.path.join(d,f) for f in file_list)
     return files
 
 
@@ -26,11 +25,7 @@ if os.path.isfile(sys.argv[1]):
     files = [sys.argv[1]]
 else:
     tmp_files = recursive_walk_directory(sys.argv[1])
-    files = []
-    for fil in tmp_files:
-        if fil.endswith(".js"):
-            files.append(fil)
-
+    files = [fil for fil in tmp_files if fil.endswith(".js")]
 print("Found {0} files with .js extensions to try and parse".format(len(files)))
 
 
@@ -59,13 +54,11 @@ for f in files:
             char_code_array.append(this_element)
             this_element = ""
 
-    out = f + '.decoded'
+    out = f'{f}.decoded'
     print("Writing output to: {0}".format(out))
-    out_data = ""
     print(len(char_code_array))
-    for cc in char_code_array:
-        out_data += chr(int(cc))
+    out_data = "".join(chr(int(cc)) for cc in char_code_array)
     out_data = jsbeautifier.beautify(out_data)
-    
+
     with open(out, 'w') as outfile:
         outfile.write(out_data)
